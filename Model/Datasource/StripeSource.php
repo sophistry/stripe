@@ -173,6 +173,32 @@ class StripeSource extends DataSource {
 	}
 
 /**
+* Receive the query callback that comes from Cake Parent Model
+* 
+* @param string $model Name of the model 
+* @param array $data Data to be reformatted into stripe request
+* @param string $api_key The API key to be sent in header in the request() method
+* @param string $path string The URI for the Stripe API call
+*/
+	public function query($model, $data = array(), $api_key, $path = null) {
+		$this->config['api_key'] = $api_key;
+		$request = array(
+			'uri' => array(
+				'path' => trim($path)
+			),
+			'method' => 'POST',
+			'body' => $this->reformat($model, $data)
+		);
+
+		$response = $this->request($request);
+		if ($response === false) {
+			return false;
+		}
+		return array($model => $response);
+	}
+
+
+/**
  * Submits a request to Stripe. Requests are merged with default values, such as
  * the api host. If an error occurs, it is stored in `$lastError` and `false` is
  * returned.
