@@ -27,6 +27,11 @@ App::uses('CakeLog', 'Log');
 class StripeSource extends DataSource {
 
 /**
+ * Description of the datasource
+ */
+    public $description = 'StripeAPI DataSource';
+
+/**
  * HttpSocket
  *
  * @var HttpSocket
@@ -59,19 +64,19 @@ class StripeSource extends DataSource {
 		if (empty($config['api_key'])) {
 			throw new CakeException('StripeSource: Missing api key');
 		}
-		
+		// create the HttpSocket object so we can talk to the StripeAPI
 		$this->Http = new HttpSocket();
 	}
 
 /**
- * Creates a record in Stripe
+ * Creates a record in Stripe, called by Model::save() via callback
  *
  * @param Model $model The calling model
  * @param array $fields Array of fields
  * @param array $values Array of field values
  * @return boolean Success
  */
-	public function create($model, $fields = array(), $values = array()) {
+	public function create(Model $model, $fields = array(), $values = array()) {
 		$request = array(
 			'uri' => array(
 				'path' => $model->path
@@ -95,7 +100,7 @@ class StripeSource extends DataSource {
  * @param array $queryData Query data (conditions, limit, etc)
  * @return mixed `false` on failure, data on success
  */
-	public function read($model, $queryData = array()) {
+	public function read(Model $model, $queryData = array()) {
 		// If calculate() wants to know if the record exists. Say yes.
 		if ($queryData['fields'] == 'COUNT') {
 			return array(array(array('count' => 1)));
@@ -128,7 +133,7 @@ class StripeSource extends DataSource {
  * @param array $values Array of field values
  * @return mixed `false` on failure, data on success
  */
-	public function update($model, $fields = array(), $values = array()) {
+	public function update(Model $model, $fields = array(), $values = array()) {
 		$data = array_combine($fields, $values);
 		if (!isset($data['id'])) {
 			$data['id'] = $model->id;
@@ -158,7 +163,7 @@ class StripeSource extends DataSource {
  * @param integer $id Id to delete
  * @return boolean Success
  */
-	public function delete($model, $id = null) {
+	public function delete(Model $model, $id = null) {
 		$request = array(
 			'uri' => array(
 				'path' => trim($model->path, '/').'/'.$id[$model->alias.'.'.$model->primaryKey]
@@ -180,7 +185,7 @@ class StripeSource extends DataSource {
 * @param string $api_key The API key to be sent in header in the request() method
 * @param string $path string The URI for the Stripe API call
 */
-	public function query($model, $data = array(), $api_key, $path = null) {
+/*	public function query(Model $model, $data = array(), $api_key, $path = null) {
 		$this->config['api_key'] = $api_key;
 		$request = array(
 			'uri' => array(
@@ -196,7 +201,7 @@ class StripeSource extends DataSource {
 		}
 		return array($model => $response);
 	}
-
+*/
 
 /**
  * Submits a request to Stripe. Requests are merged with default values, such as
@@ -216,10 +221,10 @@ class StripeSource extends DataSource {
 			),
 			'method' => 'GET',
 		);
+
 		$this->request = Set::merge($this->request, $request);
 		$this->request['uri']['path'] = '/v1/' . trim($this->request['uri']['path'], '/');
 		$this->Http->configAuth('Basic', $this->config['api_key'], '');
-
 		try {
 			$response = $this->Http->request($this->request);
 			switch ($this->Http->response['status']['code']) {
