@@ -100,7 +100,7 @@ class StripeSource extends DataSource {
  * @param array $queryData Query data (conditions, limit, etc)
  * @return mixed `false` on failure, data on success
  */
-	public function read(Model $model, $queryData = array()) {
+	public function read(Model $model, $queryData = array(), $recursive = NULL) {
 		// If calculate() wants to know if the record exists. Say yes.
 		if ($queryData['fields'] == 'COUNT') {
 			return array(array(array('count' => 1)));
@@ -133,7 +133,7 @@ class StripeSource extends DataSource {
  * @param array $values Array of field values
  * @return mixed `false` on failure, data on success
  */
-	public function update(Model $model, $fields = array(), $values = array()) {
+	public function update(Model $model, $fields = array(), $values = array(), $conditions = NULL) {
 		$data = array_combine($fields, $values);
 		if (!isset($data['id'])) {
 			$data['id'] = $model->id;
@@ -261,7 +261,7 @@ class StripeSource extends DataSource {
  *
  * @return null
  */
-	public function listSources() {
+	public function listSources($data = NULL) {
 		return null;
 	}
 
@@ -271,7 +271,7 @@ class StripeSource extends DataSource {
  * @param Model $Model
  * @return array
  */
-	public function describe(Model $Model) {
+	public function describe($Model) {
 		if (isset($Model->_schema)) {
 			return $Model->_schema;
 		} else {
