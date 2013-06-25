@@ -106,7 +106,9 @@ class StripeSource extends DataSource {
 			return array(array(array('count' => 1)));
 		}
 		if (empty($queryData['conditions'][$model->alias.'.'.$model->primaryKey])) {
-			$queryData['conditions'][$model->alias.'.'.$model->primaryKey] = $model->id;
+			if (isset($model->id)){
+				$queryData['conditions'][$model->alias.'.'.$model->primaryKey] = $model->id;
+			}
 		}
 		$request = array(
 			'uri' => array(
@@ -117,7 +119,11 @@ class StripeSource extends DataSource {
 		if ($response === false) {
 			return false;
 		}
-		$model->id = $response['id'];
+		
+		if (isset($response['id'])){
+			$model->id = $response['id'];
+		}
+
 		return array(
 			array(
 				$model->alias => $response
